@@ -1,0 +1,50 @@
+public class Solution {
+    public int maxVacationDays(int[][] flights, int[][] days) {
+        int n = flights.length;
+        int k = days[0].length;
+
+        // Use a large negative number for impossible states
+        final int NEG_INF = Integer.MIN_VALUE / 2;
+
+        // prev[j] = maximum vacation days achievable up to previous week ending at city j
+        int[] prev = new int[n];
+        // Initialize
+        for (int j = 0; j < n; j++) {
+            prev[j] = NEG_INF;
+        }
+        // Week 0 initialization:
+        prev[0] = days[0][0];
+        for (int j = 1; j < n; j++) {
+            if (flights[0][j] == 1) {
+                prev[j] = days[j][0];
+            }
+        }
+
+        // For each week from 1 to k-1
+        for (int w = 1; w < k; w++) {
+            int[] curr = new int[n];
+            for (int j = 0; j < n; j++) {
+                curr[j] = NEG_INF;
+            }
+            for (int j = 0; j < n; j++) {
+                // Try staying in same city j, or coming from some city i that can fly to j
+                for (int i = 0; i < n; i++) {
+                    if (i == j || flights[i][j] == 1) {
+                        curr[j] = Math.max(curr[j], prev[i]);
+                    }
+                }
+                if (curr[j] > NEG_INF) {
+                    curr[j] += days[j][w];
+                }
+            }
+            prev = curr;
+        }
+
+        // The answer is the maximum among prev[j] after week k-1
+        int ans = 0;
+        for (int j = 0; j < n; j++) {
+            ans = Math.max(ans, prev[j]);
+        }
+        return ans;
+    }
+}
